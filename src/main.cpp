@@ -1,4 +1,4 @@
-
+#include "celeste_lib.h"
 // #############################################################################
 //                           Platform Includes
 // #############################################################################
@@ -111,7 +111,14 @@ int main()
 
     while(running)
     {
+        //Update
        platform_update_window();
+
+       SM_TRACE("Test");
+       SM_WARN("Test");
+       SM_ERROR("Test");
+       SM_ASSERT(false,"Assertion HIT!");
+       
     }
     return 0;
 }
