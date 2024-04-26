@@ -178,7 +178,12 @@ long get_file_size(char* filePath)
     return fileSize;
 }
 
-
+/*
+* Reads a file into a supplied buffer. We manage our own
+* memory and therefore want more control over where it 
+* is allocated 
+* ↓↓↓
+*/
 char* read_file(char* filePath, int* fileSize, char* buffer)
 {
     SM_ASSERT(filePath, "No filePath supplied!");
