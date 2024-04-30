@@ -113,7 +113,7 @@ int main()
     {
         //Update
        platform_update_window();
-
+       
        SM_TRACE("Test");
        SM_WARN("Test");
        SM_ERROR("Test");

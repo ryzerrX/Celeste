@@ -75,7 +75,7 @@ void _log(char* prefix, char* msg, TextColor textColor, Args... args)
 
 #define SM_TRACE(msg, ...) _log("TRACE: ", msg, TEXT_COLOR_GREEN, ##__VA_ARGS__);
 #define SM_WARN(msg, ...) _log("WARN: ", msg, TEXT_COLOR_YELLOW, ##__VA_ARGS__);
-#define SM_ERROR(msg, ...) _log("ERROR: ", msg, TEXT_COLOR_RED ##__VA_ARGS__);
+#define SM_ERROR(msg, ...) _log("ERROR: ", msg, TEXT_COLOR_RED, ##__VA_ARGS__);
 
 #define SM_ASSERT(x, msg, ...)              \
 {                                           \
@@ -88,7 +88,7 @@ void _log(char* prefix, char* msg, TextColor textColor, Args... args)
 }
 
 // #############################################################################
-//                                Bump Allocatore
+//                                Bump Allocator
 // #############################################################################
 struct BumpAllocator
 {
@@ -120,10 +120,10 @@ char* bump_alloc(BumpAllocator* bumpAllocator, size_t size)
     char* result = nullptr;
 
     size_t allignedSize = (size + 7) & ~ 7; // This makes sure ther first 4 bits are 0
-    if(BumpAllocator->used + allignedSize <= BumpAllocator->capacity)
+    if(bumpAllocator->used + allignedSize <= bumpAllocator->capacity)
     {
-        result = BumpAllocator->memory + BumpAllocator->used;
-        BumpAllocator->used += allignedSize;
+        result = bumpAllocator->memory + bumpAllocator->used;
+        bumpAllocator->used += allignedSize;
     }
     else
     {
@@ -229,7 +229,7 @@ void write_file(char* filePath, char* buffer, int size)
 {
     SM_ASSERT(filePath, "No filePath supplied!");
     SM_ASSERT(buffer, "No buffer supplied!");
-    auto file = fopen(filePath, "wb") // "wb"->Write binary
+    auto file = fopen(filePath, "wb"); // "wb"->Write binary
     if(!file)
     {
         SM_ERROR("Failed opening File: %s", filePath);
