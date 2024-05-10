@@ -1,109 +1,15 @@
 #include "celeste_lib.h"
-// #############################################################################
-//                           Platform Includes
-// #############################################################################
-static bool running = true;
 
-// #############################################################################
-//                           Platform Functions
-// #############################################################################
-bool platform_create_window(int width,int height,char* title);
-void platform_update_window();
+#include "platform.h"
 
-// #############################################################################
-//                           Windows Platform
-// #############################################################################
+#define APIENTRY
+#include "glcorearb.h"
+
 #ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <windows.h>
-
-
-// #############################################################################
-//                           Windows Globals
-// #############################################################################
-static HWND window;
-
-// #############################################################################
-//                           Platform Implementation
-// #############################################################################
-LRESULT CALLBACK windows_window_callback(HWND window, UINT msg,
-                                         WPARAM wParam, LPARAM lParam)
-{
-    LRESULT result = 0;
-
-    switch(msg)
-    {
-        case WM_CLOSE:
-        {
-            running = false;
-            break;
-        }
-
-        default:
-        {
-            // Let windows handle the default input for now
-            result = DefWindowProcA(window, msg, wParam, lParam);
-        }
-    }
-
-    return result;
-}
-
-bool platform_create_window(int width,int height,char* title)
-{
-    HINSTANCE instance = GetModuleHandleA(0);
-
-    WNDCLASSA wc = {};
-    wc.hInstance = instance;
-    wc.hIcon = LoadIcon(instance, IDI_APPLICATION);         // This means we decided the look of the icon(default icon)
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);               // This means we decided the look of the cursor(arrow)
-    wc.lpszClassName = title;                               // This is NOT th titl, just a unique identifier(ID)
-    wc.lpfnWndProc = windows_window_callback;               //Callback for Input into the Window
-
-    if(!RegisterClassA(&wc))
-    {
-        return false;
-    }
-    //WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
-    int dwStyle = WS_OVERLAPPEDWINDOW;
-
-    window = CreateWindowExA(0, title,         //This references IpszClassName from from 
-                                title,          // This is the actual Title
-                                dwStyle,
-                                100,
-                                100,
-                                width,
-                                height,
-                                NULL,       // parent
-                                NULL,       // menu
-                                instance,
-                                NULL);      //lpParam
-
-    if(window == NULL)
-    {
-        return false;
-    }
-
-    ShowWindow(window, SW_SHOW);
-
-    return true;
-}
-
-void platform_update_window()
-{
-    MSG msg;
-
-    while(PeekMessageA(&msg, window, 0, 0, PM_REMOVE))
-    {
-        TranslateMessage(&msg);
-        DispatchMessageA(&msg);         // Calls the callback specified when creating the window(line 39)
-
-    }
-}
-
+#include "win32_platform.cpp"
 #endif
 
+#include "gl_renderer.h"
 
 int main()
 {
@@ -112,13 +18,8 @@ int main()
     while(running)
     {
         //Update
-       platform_update_window();
-       
-       SM_TRACE("Test");
-       SM_WARN("Test");
-       SM_ERROR("Test");
-       SM_ASSERT(false,"Assertion HIT!");
-       
+       platform_update_window();   
     }
+
     return 0;
 }
