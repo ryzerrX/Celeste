@@ -1,13 +1,19 @@
 #pragma once
-// #############################################################################
-//                           Platform Globals
-// #############################################################################
-static bool running = true;
+
+#include "celeste_lib.h"
 
 // #############################################################################
-//                           Platform Functions
+//                           Input Structs
 // #############################################################################
-bool platform_create_window(int width,int height,char* title);
-void platform_update_window();
-void* platform_load_gl_function(char* FunName);
-void platform_swap_buffers();
+
+struct Input
+{
+    int screenSizeX;
+    int screenSizeY;
+};
+
+// #############################################################################
+//                           Input Globals
+// #############################################################################
+
+static Input input;
