@@ -4,6 +4,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include "render_interface.h"
+
 // #############################################################################
 //                           OpenGL Constants
 // #############################################################################
@@ -18,6 +20,8 @@ struct GLContext
 {
     GLuint programID;
     GLuint textureID;
+    GLuint transformSBOID;
+    GLuint screenSizeID;
 };
 
 // #############################################################################
@@ -145,6 +149,19 @@ bool gl_init(BumpAllocator* transientStorage)
 
     }
 
+    // Transform Storage Buffer 
+    {
+        glGenBuffers(1, &glContext.transformSBOID);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, glContext.transformSBOID);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Transform) * MAX_TRANSFORMS,
+                     renderData->transforms, GL_DYNAMIC_DRAW);
+    }
+
+    // Uniforms 
+    {
+        glContext.screenSizeID = glGetUniformLocation(glContext.programID, "screenSize");
+    }
+
     // sRGB output (even if input texture is non-sRGB -> don't rely on texture used)
     // Your font is not using sRGB, for example (not that it matters there, because no actual color is sampled from it)
     // But this could prevent some future bug when you start mixing different types of textures
@@ -167,7 +184,22 @@ void gl_render()
     glClearColor(119.0f / 255.0f, 33.0f / 255.0f, 111.0f / 255.0f, 1.0f);
     glClearDepth(0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glViewport(0, 0, input.screenSizeX, input.screenSizeY);
+    glViewport(0, 0, input->screenSizeX, input->screenSizeY);
 
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    // Copy screen size to the GPU
+    Vec2 screenSize = {(float)input->screenSizeX, (float)input->screenSizeY};
+    glUniform2fv(glContext.screenSizeID, 1, &screenSize.x);
+
+    // Opaque Objects
+    {
+        // Copy transforms to the GPU
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Transform) * renderData->transformCount,
+                        renderData->transforms);
+
+        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, renderData->transformCount);
+
+        // Reset for next Frame 
+        renderData->transformCount = 0;
+    }
+
 }

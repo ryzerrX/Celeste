@@ -13,8 +13,10 @@
 // #############################################################################
 #ifdef _WIN32
 #define DEBUG_BREAK() __debugbreak()
+#define EXPORT_FN __declspec(dllexport)
 #elif __linux__
 #define DEBUG_BREAK() __builtin_debugtrap()
+#define EXPORT_FN
 #endif
 
 #define BIT(x) 1 << (x)
@@ -283,3 +285,19 @@ bool copy_file(char* fileName, char* outputName, BumpAllocator* bumpAllocator)
 
     return false;
 }
+
+// #############################################################################
+//                           Math Stuff
+// #############################################################################
+struct Vec2
+{
+    float x;
+    float y;
+};
+
+struct IVec2
+{
+    int x;
+    int y;
+};
+
